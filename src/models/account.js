@@ -15,6 +15,8 @@ const mongoose = require('mongoose'),
         birthDate: String,
         password: String,
         role: String,
+        resetPasswordToken: String,
+        resetPasswordExpires: String
     }, { timestamps: true })
 
 accountSchema.methods.encryptPassword = password => bcrypt.hashSync(password, bcrypt.genSaltSync(10))

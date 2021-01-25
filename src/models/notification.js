@@ -2,8 +2,7 @@ const { Schema, model } = require('mongoose'),
     objectId = Schema.ObjectId,
 
     notificationSchema = new Schema({
-        professionalId: { type: objectId, ref: 'Professional' },
-        accountId: { type: objectId, ref: 'Account' },
+        userId: { type: objectId },
         type: String,
         readed: {
             type: Boolean,

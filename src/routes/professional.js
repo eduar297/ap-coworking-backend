@@ -7,7 +7,10 @@ const {
     remove,
     getSchedule,
     bookAppointment,
-    getRents
+    getRents,
+    forgotPassword,
+    resetPassword,
+    updatePasswordByEmail
 } = require('../controllers/professional');
 
 const admin = require('../middleware/admin');
@@ -19,7 +22,7 @@ router.route('/')
 
 router.route('/getRents')
     .get(professional, getRents)
-    
+
 router.route('/getSchedule/:id')
     .post(client, getSchedule)
 
@@ -27,5 +30,14 @@ router.route('/:id')
     .get(professional, get)
     .post(client, bookAppointment)
     .delete(admin, remove);
+
+router.route('/forgotPassword')
+    .post(forgotPassword)
+
+router.route('/resetPassword')
+    .get(resetPassword)
+
+router.route('/updatePasswordByEmail')
+    .put(updatePasswordByEmail)
 
 module.exports = router;

@@ -4,23 +4,17 @@ const mailer = function (to, subject, html) {
     const transporter = _mailer.createTransport({
         service: 'gmail',
         auth: {
-            user: '',
-            pass: ''
+            user: `${process.env.EMAIL_ADDRESS}`,
+            pass: `${process.env.EMAIL_PASSWORD}`
         }
     });
     const mailOption = {
-        from: '',
+        from: 'Elever Center',
         to: to,
         subject: subject,
         html: html
     };
-
-    transporter.sendMail(mailOption, (error, info) => {
-        if (error)
-            return false;
-        else
-            return true;
-    })
+    return transporter.sendMail(mailOption)
 };
 
 module.exports = mailer;

@@ -4,7 +4,10 @@ const ctr = {},
     Account = require('../models/account'),
     Appointment = require('../models/appointment'),
     Notification = require('../models/notification'),
-    jwt = require('../service/jwt')
+    jwt = require('../service/jwt'),
+    forgotPass = require('../service/forgotPass'),
+    updatePassByEmail = require('../service/updatePassByEmail'),
+    resetPass = require('../service/resetPass')
 
 ctr.register = async (req, res) => {
     const {
@@ -57,8 +60,19 @@ ctr.register = async (req, res) => {
 ctr.forgotPassword = async (req, res) => {
     const email = req.body.email
 
-    // return res.status(200).send({ message: `email not in db` })
-    // return res.status(200).send({ message: `recovery email sent` })
+    await forgotPass(email, res)
+}
+
+ctr.resetPassword = async (req, res) => {
+    const token = req.query.resetPasswordToken
+
+    await resetPass(token, res)
+}
+
+ctr.updatePasswordByEmail = async (req, res) => {
+    const { id, password } = req.body
+
+    await updatePassByEmail(id, password, res)
 }
 
 ctr.login = async (req, res) => {
@@ -66,18 +80,18 @@ ctr.login = async (req, res) => {
         account = await Account.findOne({ email: email })
 
     if (!account)
-        return res.status(200).send({ error: "Invalid credentials" })
+        return res.status(200).send({ error: "No estás registrado" })
 
     if (!account.comparePassword(password))
-        return res.status(200).send({ error: "Invalid credentials" })
+        return res.status(200).send({ error: "Contraseña incorrecta" })
 
-    let appoinments;
+    let appointments;
     if (account.role == "client")
         appointments = await Appointment.find({ clientId: account._id });
     else
         appointments = await Appointment.find({ professionalId: account._id });
 
-    const notifications = await Notification.find({ 'accountId': account._id })
+    const notifications = await Notification.find({ userId: account._id })
 
 
     return res.status(200).send({
@@ -92,7 +106,7 @@ ctr.currentUser = async (req, res) => {
     const { id } = req.user,
         account = await Account.findById(id),
         appointments = await Appointment.find({ accountId: id }),
-        notifications = await Notification.find({ 'accountId': account._id })
+        notifications = await Notification.find({ userId: account._id })
 
     res.status(200).send({
         account: account,
@@ -136,56 +150,20 @@ ctr.editUser = async (req, res) => {
     res.status(200).json({ updatedAccount: account })
 }
 
-ctr.updateNotifications = async (req, res) => {
-    const id = req.user.id
-    account = await Account.findOne({ _id: id }),
-        notifications = await Notification.find({ 'accountId': req.user.id })
-
-    notifications.forEach(async notification => {
-        const _res = await notification.update({ readed: req.body.readed })
-    })
-
-    res.status(200).json({ msg: "updated all notification" })
-
-}
-
-ctr.getAllNotifications = async (req, res) => {
-
-    const id = req.user.id
-    account = await Account.findOne({ _id: id })
-    notifications = await Notification.find({ 'accountId': req.user.id })
-
-    return res.status(200).json({ notifications })
-}
-
-ctr.deleteNotification = async (req, res) => {
-    const notification = await Notification.findOneAndDelete({ '_id': req.params.id })
-    res.status(200).json({ deleted: notification })
-}
-
-ctr.getCountNoReadedNotification = async (req, res) => {
-
-    const id = req.user.id,
-    account = await Account.findOne({ _id: id }),
-        notifications = await Notification.find({ 'accountId': req.user.id, 'readed': false })
-
-    return res.status(200).json({ count: notifications.length })
-}
-
 ctr.getAppointments = async (req, res) => {
     const id = req.user.id,
-    account = await Account.findOne({ _id: id });
+        account = await Account.findOne({ _id: id });
     if (account.role == 'client') {
         const appointments = await Appointment.find({ 'clientId': id });
         for (let i = 0; i < appointments.length; i++) {
-            appointments[i].other =  await Account.findOne({ _id: appointments[i].professionalId });          
+            appointments[i].other = await Account.findOne({ _id: appointments[i].professionalId });
         }
         return res.status(200).json({ appointments })
     }
     else if (account.role == 'professional') {
         const appointments = await Appointment.find({ 'professionalId': id });
         for (let i = 0; i < appointments.length; i++) {
-            appointments[i].other =  await Account.findOne({ _id: appointments[i].clientId });          
+            appointments[i].other = await Account.findOne({ _id: appointments[i].clientId });
         }
         return res.status(200).json({ appointments })
     }

@@ -3,8 +3,26 @@ const ctr = {},
     Account = require('../models/account'),
     Appointment = require('../models/appointment'),
     Rent = require('../models/rent'),
-    Office = require('../models/office')
+    Office = require('../models/office'),
+    forgotPass = require('../service/forgotPass'),
+    updatePassByEmail = require('../service/updatePassByEmail'),
+    resetPass = require('../service/resetPass')
 
+ctr.forgotPassword = async (req, res) => {
+    const email = req.body.email
+
+    await forgotPass(email, res)
+}
+ctr.resetPassword = async (req, res) => {
+    const token = req.query.resetPasswordToken
+
+    await resetPass(token, res)
+}
+ctr.updatePasswordByEmail = async (req, res) => {
+    const { id, password } = req.body
+
+    await updatePassByEmail(id, password, res)
+}
 ctr.gets = async (req, res) => {
     const professionals = await Account.find({ role: 'professional' })
     return res.status(200).send({ professionals })
@@ -198,11 +216,11 @@ const getScheduleDay = async (year, month, day, id) => {
 }
 ctr.getRents = async (req, res) => {
     const id = req.user.id;
-    const rents = await Rent.find({professionalId: id});
+    const rents = await Rent.find({ professionalId: id });
     for (let i = 0; i < rents.length; i++) {
         const office = await Office.findById(rents[i].officeId)
         rents[i].officeName = office.name
-    }   
+    }
     return res.status(200).json({ rents })
 }
 

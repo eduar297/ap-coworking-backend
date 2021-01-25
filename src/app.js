@@ -23,4 +23,6 @@ app.use('/api/professional', require('./routes/professional'))
 app.use('/api/notification', require('./routes/notification'))
 app.use('/api/office', require('./routes/office'))
 
+app.use('/api/sendmail', require('./routes/sendMail'))
+
 module.exports = { server, io }

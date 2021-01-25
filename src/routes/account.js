@@ -5,13 +5,11 @@ const { Router } = require('express'),
         register,
         login,
         currentUser,
-        updateNotifications,
         editUser,
-        getAllNotifications,
-        getCountNoReadedNotification,
-        deleteNotification,
+        getAppointments,
         forgotPassword,
-        getAppointments
+        resetPassword,
+        updatePasswordByEmail
     } = require('../controllers/account'),
 
     account = require('../middleware/account')
@@ -28,22 +26,16 @@ router.route('/me')
 router.route('/getAppointments')
     .get(account, getAppointments)
 
-router.route('/notifications')
-    .get(account, getAllNotifications)
-
-router.route('/count_notifications')
-    .get(account, getCountNoReadedNotification)
-
 router.route('/edit')
     .put(account, editUser)
 
-router.route('/updateNotifications')
-    .put(account, updateNotifications)
-
-router.route('/deleteNotifications/:id')
-    .delete(account, deleteNotification)
-
 router.route('/forgotPassword')
     .post(forgotPassword)
+
+router.route('/resetPassword')
+    .get(resetPassword)
+
+router.route('/updatePasswordByEmail')
+    .put(updatePasswordByEmail)
 
 module.exports = router
