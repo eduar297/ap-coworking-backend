@@ -1,7 +1,7 @@
 const seed = require('./service/seed');
 
 require('dotenv').config();
-// require('./database');
+require('./database');
 
 const ioCtr = require('./socketio'),
     { server } = require('./app'),
