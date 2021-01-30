@@ -42,19 +42,21 @@ ctr.send = async (req, res) => {
 
     if (email === '')
         return res.status(200).send({ message: `email required` })
+    
 
-    console.log(html)
-
-    mailer("elevercenter@gmail.com", "Mensaje de contacto de " + name, html, email).
+    try {
+        mailer("elevercenter@gmail.com", "Mensaje de contacto de " + name, html, email).
         then(_res => {
-            console.log('success', _res)
+            console.log('success to send msg', _res)
             return res.status(200).send({ message: `email sent` })
         }).
         catch(err => {
             console.log("error", err)
             return res.status(200).send({ message: `error`, err })
         })
-
+    } catch (error) {
+        console.log(error)
+    }    
 }
 
 module.exports = ctr
